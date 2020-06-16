@@ -101,7 +101,7 @@ let hash = (data) => {
  * @return {Buffer}               - RAW PKCS encoded public key
  */
 let COSEECDHAtoPKCS = (COSEPublicKey) => {
-    /* 
+    /*
        +------+-------+-------+---------+----------------------------------+
        | name | key   | label | type    | description                      |
        |      | type  |       |         |                                  |
@@ -148,7 +148,7 @@ let ASN1toPEM = (pkBuffer) => {
             }
             Luckily, to do that, we just need to prefix it with constant 26 bytes (metadata is constant).
         */
-        
+
         pkBuffer = Buffer.concat([
             new Buffer.from("3059301306072a8648ce3d020106082a8648ce3d030107034200", "hex"),
             pkBuffer
@@ -169,7 +169,7 @@ let ASN1toPEM = (pkBuffer) => {
     }
 
     PEMKey = `-----BEGIN ${type}-----\n` + PEMKey + `-----END ${type}-----\n`;
-    
+
     return PEMKey
 }
 
@@ -198,7 +198,7 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
     let ctapMakeCredResp  = cbor.decodeAllSync(attestationBuffer)[0];
 
     let response = {'verified': false};
-    if(ctapMakeCredResp.fmt === 'fido-u2f') {
+    //if(ctapMakeCredResp.fmt === 'fido-u2f') {
         let authrDataStruct = parseMakeCredAuthData(ctapMakeCredResp.authData);
 
         if(!(authrDataStruct.flags & U2F_USER_PRESENTED))
@@ -209,6 +209,8 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
         let publicKey       = COSEECDHAtoPKCS(authrDataStruct.COSEPublicKey)
         let signatureBase   = Buffer.concat([reservedByte, authrDataStruct.rpIdHash, clientDataHash, authrDataStruct.credID, publicKey]);
 
+    console.log(JSON.stringify(ctapMakeCredResp))
+    console.log(JSON.stringify(ctapMakeCredResp.attStmt))
         let PEMCertificate = ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0]);
         let signature      = ctapMakeCredResp.attStmt.sig;
 
@@ -216,13 +218,14 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
 
         if(response.verified) {
             response.authrInfo = {
-                fmt: 'fido-u2f',
+                //fmt: 'fido-u2f',
+                fmt: ctapMakeCredResp.fmt,
                 publicKey: base64url.encode(publicKey),
                 counter: authrDataStruct.counter,
                 credID: base64url.encode(authrDataStruct.credID)
             }
         }
-    }
+    //}
 
     return response
 }
