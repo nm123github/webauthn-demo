@@ -5,8 +5,8 @@ const cookieParser  = require('cookie-parser');
 const urllib        = require('url');
 const path          = require('path');
 const crypto        = require('crypto');
-const x509          = require('@fidm/x509');
-const iso_3166_1    = require('iso-3166-1');
+const fs            = require("fs");
+const https         = require('https')
 
 const config        = require('./config.json');
 const defaultroutes = require('./routes/default');
@@ -35,7 +35,14 @@ app.use('/password', passwordauth)
 app.use('/webauthn', webuathnauth)
 
 const port = config.port || 3000;
-app.listen(port);
-console.log(`Started app on port ${port}`);
+//app.listen(port);
+//console.log(`Started app on port ${port}`);
+
+https.createServer({
+  key: fs.readFileSync("./private.key"),
+  cert: fs.readFileSync("./certificate.crt")
+}, app).listen(port, () => {
+  console.log('Listening on 443...')
+})
 
 module.exports = app;
