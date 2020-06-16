@@ -209,10 +209,8 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
         let publicKey       = COSEECDHAtoPKCS(authrDataStruct.COSEPublicKey)
         let signatureBase   = Buffer.concat([reservedByte, authrDataStruct.rpIdHash, clientDataHash, authrDataStruct.credID, publicKey]);
 
-    console.log(JSON.stringify(ctapMakeCredResp))
-    console.log(JSON.stringify(ctapMakeCredResp.attStmt))
-        let PEMCertificate = ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0]);
-        let signature      = ctapMakeCredResp.attStmt.sig;
+        let PEMCertificate = (ctapMakeCredResp.attStmt.x5c && ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0])) || publicKey;
+        let signature     = ctapMakeCredResp.attStmt.sig;
 
         response.verified = verifySignature(signature, signatureBase, PEMCertificate)
 
