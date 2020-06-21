@@ -39,8 +39,8 @@ const port = config.port || 3000;
 //console.log(`Started app on port ${port}`);
 
 https.createServer({
-  key: fs.readFileSync("./private.key"),
-  cert: fs.readFileSync("./certificate.crt")
+  key: fs.readFileSync("/etc/letsencrypt/live/trends247.live/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/trends247.live/fullchain.pem")
 }, app).listen(port, () => {
   console.log('Listening on 443...')
 })
