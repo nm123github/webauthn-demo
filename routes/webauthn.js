@@ -1,5 +1,6 @@
 const express   = require('express');
 const utils     = require('../utils');
+const utils2    = require('../utils2');
 const config    = require('../config.json');
 const base64url = require('base64url');
 const router    = express.Router();
@@ -107,7 +108,8 @@ router.post('/response', (request, response) => {
     let result;
     if(webauthnResp.response.attestationObject !== undefined) {
         /* This is create cred */
-        result = utils.verifyAuthenticatorAttestationResponse(webauthnResp);
+        // result = utils.verifyAuthenticatorAttestationResponse(webauthnResp);
+        result = utils2.verifyPackedAttestation(webauthnResp);
 
         if(result.verified) {
             database[request.session.username].authenticators.push(result.authrInfo);
