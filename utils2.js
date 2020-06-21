@@ -114,7 +114,7 @@ var parseAuthData = (buffer) => {
     return {rpIdHash, flagsBuf, flags, counter, counterBuf, aaguid, credID, COSEPublicKey}
 }
 
-export function verifyPackedAttestation(webAuthnResponse) {
+function verifyPackedAttestation(webAuthnResponse) {
     let attestationBuffer = base64url.toBuffer(webAuthnResponse.response.attestationObject);
     let attestationStruct = cbor.decodeAllSync(attestationBuffer)[0];
 
@@ -197,6 +197,10 @@ export function verifyPackedAttestation(webAuthnResponse) {
         throw new Error('Failed to verify the signature!');
 
     return true
+}
+
+module.exports = {
+  verifyPackedAttestation
 }
 
 // let packedFullAttestationWebAuthnSample = {
