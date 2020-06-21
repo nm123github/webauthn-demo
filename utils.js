@@ -7,6 +7,44 @@ const cbor      = require('cbor');
  */
 let U2F_USER_PRESENTED = 0x01;
 
+// Convert binary certificate or public key to an OpenSSL-compatible PEM text format.
+let convertCertToPEM = (cert) => {
+
+    if (!Buffer.isBuffer(cert))
+        throw new Error("convertCertToPEM: cert must be buffer.")
+
+    var type;
+    if (cert.length == 65 && cert[0] == 0x04) {
+        // If needed, we encode raw public key to ASN structure, adding metadata:
+        // SEQUENCE {
+        //   SEQUENCE {
+        //      OBJECTIDENTIFIER 1.2.840.10045.2.1 (ecPublicKey)
+        //      OBJECTIDENTIFIER 1.2.840.10045.3.1.7 (P-256)
+        //   }
+        //   BITSTRING <raw public key>
+        // }
+        // Luckily, to do that, we just need to prefix it with constant 26 bytes (metadata is constant).
+        cert = Buffer.concat([
+            new Buffer("3059301306072a8648ce3d020106082a8648ce3d030107034200", "hex"),
+            cert]);
+
+        type = "PUBLIC KEY";
+    } else {
+        type = "CERTIFICATE";
+    }
+
+    // 2. To get PEM string, ASN structure then must be base64-encoded, split to
+    // lines of 64 chars each and prefixed/postfixed with ---BEGIN/END PUBLIC KEY--- etc.
+
+    var pemStr = "-----BEGIN "+type+"-----\n";
+    for (var certStr = cert.toString('base64'); certStr.length > 64; certStr = certStr.slice(64))
+        pemStr += certStr.slice(0, 64) + '\n';
+    pemStr += certStr + '\n';
+    pemStr += "-----END "+type+"-----\n";
+
+    return pemStr;
+}
+
 /**
  * Takes signature, data and PEM public key and tries to verify signature
  * @param  {Buffer} signature
@@ -212,7 +250,7 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
         let PEMCertificate = (ctapMakeCredResp.attStmt.x5c && ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0])) || publicKey;
         let signature     = ctapMakeCredResp.attStmt.sig;
 
-        response.verified = verifySignature(signature, signatureBase, publicKey)
+        response.verified = verifySignature(signature, signatureBase, convertCertToPEM(publicKey))
         //response.verified = verifySignature(signature, signatureBase, PEMCertificate)
         //response.verified = true;
         if(response.verified) {
