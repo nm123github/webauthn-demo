@@ -77,7 +77,7 @@ var getCertificateInfo = (certificate) => {
     }
 
     let version = subjectCert.version;
-    let basicConstraintsCA = !!subjectCert.getExtBasicConstraints().cA;
+    let basicConstraintsCA = subjectCert.getExtBasicConstraints() && !!subjectCert.getExtBasicConstraints().cA;
 
     return {
         subject, version, basicConstraintsCA
