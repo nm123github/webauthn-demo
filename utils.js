@@ -89,17 +89,13 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
             id: "trends247.live"
         },
 
-        authenticatorSelection: {
-            authenticatorAttachment: "cross-platform",
-        },
-
         user: {
             id: id,
             name: username,
             displayName: displayName
         },
 
-        //attestation: 'direct',
+        attestation: 'direct',
 
         pubKeyCredParams: [
             {
