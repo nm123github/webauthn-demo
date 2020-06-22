@@ -1,6 +1,7 @@
 const crypto    = require('crypto');
 const base64url = require('base64url');
 const cbor      = require('cbor');
+const config    = require('./config.json');
 
 /**
  * U2F Presence constant
@@ -84,7 +85,8 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
         challenge: randomBase64URLBuffer(32),
 
         rp: {
-            name: "ACME Corporation"
+            name: "ACME Corporation",
+            id: config.origin
         },
 
         user: {
