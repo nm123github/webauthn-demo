@@ -319,14 +319,20 @@ let verifyAuthenticatorAssertionResponse = (webAuthnResponse, authenticators) =>
             throw new Error('User was NOT presented durring authentication!');
 
         let clientDataHash   = hash(base64url.toBuffer(webAuthnResponse.response.clientDataJSON))
-        let signatureBase    = Buffer.concat([authrDataStruct.rpIdHash, authrDataStruct.flagsBuf, authrDataStruct.counterBuf, clientDataHash]);
+        //let signatureBase    = Buffer.concat([authrDataStruct.rpIdHash, authrDataStruct.flagsBuf, authrDataStruct.counterBuf, clientDataHash]);
+        let signatureBase;
+
+        if(ctapMakeCredResp.fmt === 'fido-u2f') {
+            signatureBase   = Buffer.concat([Buffer.from([0x00]), authrDataStruct.rpIdHash, clientDataHash, authrDataStruct.credID, publicKey]);
+        } else {
+            signatureBase   = Buffer.concat([ctapMakeCredResp.authData, clientDataHash]);
+        }
 
         let publicKey = ASN1toPEM(base64url.toBuffer(authr.publicKey));
         let signature = base64url.toBuffer(webAuthnResponse.response.signature);
 
-        //response.verified = verifySignature(signature, signatureBase, publicKey)
-
-        response.verified = true;
+        response.verified = verifySignature(signature, signatureBase, publicKey)
+        //response.verified = true;
         if(response.verified) {
             if(response.counter <= authr.counter)
                 throw new Error('Authr counter did not increase!');
