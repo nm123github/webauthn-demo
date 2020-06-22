@@ -322,10 +322,10 @@ let verifyAuthenticatorAssertionResponse = (webAuthnResponse, authenticators) =>
         //let signatureBase    = Buffer.concat([authrDataStruct.rpIdHash, authrDataStruct.flagsBuf, authrDataStruct.counterBuf, clientDataHash]);
         let signatureBase;
 
-        if(ctapMakeCredResp.fmt === 'fido-u2f') {
+        if(authr.fmt === 'fido-u2f') {
             signatureBase   = Buffer.concat([Buffer.from([0x00]), authrDataStruct.rpIdHash, clientDataHash, authrDataStruct.credID, publicKey]);
         } else {
-            signatureBase   = Buffer.concat([ctapMakeCredResp.authData, clientDataHash]);
+            signatureBase   = Buffer.concat([authenticatorData, clientDataHash]);
         }
 
         let publicKey = ASN1toPEM(base64url.toBuffer(authr.publicKey));
