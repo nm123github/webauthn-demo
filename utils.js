@@ -86,7 +86,7 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
 
         rp: {
             name: "ACME Corporation",
-            id: config.origin
+            id: "trends247.live"
         },
 
         user: {
