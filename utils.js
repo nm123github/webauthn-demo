@@ -2,7 +2,7 @@ const crypto    = require('crypto');
 const base64url = require('base64url');
 const cbor      = require('cbor');
 const config    = require('./config.json');
-
+const safetyNet = require('./verify.safetynet.webauthn.js')
 /**
  * U2F Presence constant
  */
@@ -257,13 +257,18 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
         }
 
         let PEMCertificate = (ctapMakeCredResp.attStmt.x5c && ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0])) || publicKey;
-        let signature     = ctapMakeCredResp.attStmt.sig;
+        let signature = ctapMakeCredResp.attStmt.sig;
 
-        //console.log(ctapMakeCredResp.fmt, ctapMakeCredResp.attStmt.x5c);
-        //response.verified = verifySignature(signature, signatureBase, convertCertToPEM(authrDataStruct.COSEPublicKey))
-        //response.verified = verifySignature(signature, signatureBase, convertCertToPEM(publicKey))
-        response.verified = verifySignature(signature, signatureBase, PEMCertificate)
-        //response.verified = true;
+        if (ctapMakeCredResp.fmt === 'android-safetynet') {
+            response.verified = safetyNet.verifySafetyNetAttestation(webAuthnResponse);
+        } else {
+            //console.log(ctapMakeCredResp.fmt, ctapMakeCredResp.attStmt.x5c);
+            //response.verified = verifySignature(signature, signatureBase, convertCertToPEM(authrDataStruct.COSEPublicKey))
+            //response.verified = verifySignature(signature, signatureBase, convertCertToPEM(publicKey))
+            response.verified = verifySignature(signature, signatureBase, PEMCertificate)
+            //response.verified = true;
+        }
+
         if(response.verified) {
             response.authrInfo = {
                 //fmt: 'fido-u2f',
