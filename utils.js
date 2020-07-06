@@ -95,6 +95,11 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
             displayName: displayName
         },
 
+        ...switcher && { authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            requireResidentKey: true
+        }},
+
         attestation: 'direct',
 
         pubKeyCredParams: [
