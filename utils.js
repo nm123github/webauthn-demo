@@ -127,7 +127,7 @@ let generateServerGetAssertion = (authenticators) => {
     }
     return {
         challenge: randomBase64URLBuffer(32),
-        allowCredentials: allowCredentials
+        //allowCredentials: allowCredentials
     }
 }
 
