@@ -96,9 +96,7 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
         },
 
         authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            requireResidentKey: true,
-            userVerification: "required",
+            authenticatorAttachment: "cross-platform",
         },
 
         attestation: 'direct',
