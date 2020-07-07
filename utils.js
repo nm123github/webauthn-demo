@@ -96,7 +96,7 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
         },
 
         authenticatorSelection: {
-            authenticatorAttachment: "cross-platform",
+            authenticatorAttachment: "platform",
         },
 
         attestation: 'direct',
